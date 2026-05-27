@@ -1,0 +1,112 @@
+#include <iostream>
+#include <string>
+#include <cctype>
+using namespace std;
+
+bool isAllDigits(const string& s) {
+    for (char c : s) {
+        if (!isdigit(c)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+char calculateCheckCode(const string& id17) {
+    int weights[17] = {
+        7, 9, 10, 5, 8, 4, 2,
+        1, 6, 3, 7, 9, 10,
+        5, 8, 4, 2
+    };
+
+    char checkCodes[11] = {
+        '1', '0', 'X', '9', '8', '7',
+        '6', '5', '4', '3', '2'
+    };
+
+    int sum = 0;
+
+    for (int i = 0; i < 17; i++) {
+        sum += (id17[i] - '0') * weights[i];
+    }
+
+    int mod = sum % 11;
+    return checkCodes[mod];
+}
+
+bool validateIdCard(const string& id) {
+    if (id.length() != 18) {
+        cout << "身份证号码必须是18位。" << endl;
+        return false;
+    }
+
+    string id17 = id.substr(0, 17);
+
+    if (!isAllDigits(id17)) {
+        cout << "身份证号码前17位必须是数字。" << endl;
+        return false;
+    }
+
+    char lastChar = toupper(id[17]);
+
+    if (!isdigit(lastChar) && lastChar != 'X') {
+        cout << "身份证号码最后一位必须是数字或X。" << endl;
+        return false;
+    }
+
+    char correctCode = calculateCheckCode(id17);
+
+    if (lastChar != correctCode) {
+        cout << "校验码错误。正确的校验码应该是：" << correctCode << endl;
+        return false;
+    }
+
+    return true;
+}
+
+int main() {
+    int choice;
+    string input;
+
+    cout << "请选择功能：" << endl;
+    cout << "1. 根据身份证前17位计算最后一位校验码" << endl;
+    cout << "2. 验证18位身份证号码是否有效" << endl;
+    cout << "请输入选项：";
+
+    cin >> choice;
+
+    if (choice == 1) {
+        cout << "请输入身份证前17位：";
+        cin >> input;
+
+        if (input.length() != 17) {
+            cout << "输入错误：必须输入17位数字。" << endl;
+            return 0;
+        }
+
+        if (!isAllDigits(input)) {
+            cout << "输入错误：前17位必须全部是数字。" << endl;
+            return 0;
+        }
+
+        char checkCode = calculateCheckCode(input);
+
+        cout << "最后一位校验码是：" << checkCode << endl;
+        cout << "完整号码为：" << input << checkCode << endl;
+
+    } else if (choice == 2) {
+        cout << "请输入18位身份证号码：";
+        cin >> input;
+
+        if (validateIdCard(input)) {
+            cout << "此身份证号码格式和校验码有效。" << endl;
+        } else {
+            cout << "此身份证号码无效。" << endl;
+        }
+
+    } else {
+        cout << "选项错误。" << endl;
+    }
+
+    return 0;
+}
